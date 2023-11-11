@@ -30,14 +30,24 @@ import com.baidu.mapapi.map.MapView
 import com.baidu.mapapi.map.Marker
 import com.baidu.mapapi.map.MarkerOptions
 import com.baidu.mapapi.map.MyLocationData
-import com.baidu.mapapi.map.OverlayOptions
 import com.baidu.mapapi.model.LatLng
+import com.baidu.mapapi.search.route.BikingRoutePlanOption
+import com.baidu.mapapi.search.route.BikingRouteResult
+import com.baidu.mapapi.search.route.DrivingRouteResult
+import com.baidu.mapapi.search.route.IndoorRouteResult
+import com.baidu.mapapi.search.route.MassTransitRouteResult
+import com.baidu.mapapi.search.route.OnGetRoutePlanResultListener
+import com.baidu.mapapi.search.route.PlanNode
+import com.baidu.mapapi.search.route.RoutePlanSearch
+import com.baidu.mapapi.search.route.TransitRouteResult
+import com.baidu.mapapi.search.route.WalkingRouteResult
 import com.baidu.mapapi.walknavi.WalkNavigateHelper
 import com.baidu.mapapi.walknavi.adapter.IWEngineInitListener
 import com.baidu.mapapi.walknavi.adapter.IWRoutePlanListener
 import com.baidu.mapapi.walknavi.model.WalkRoutePlanError
 import com.baidu.mapapi.walknavi.params.WalkNaviLaunchParam
 import com.baidu.mapapi.walknavi.params.WalkRouteNodeInfo
+import com.example.baidumaps.api.BikingRouteOverlay
 import java.lang.ref.WeakReference
 
 
@@ -58,13 +68,16 @@ class MainActivity : AppCompatActivity() {
     private var mWalkParam: WalkNaviLaunchParam? = null
 
     private var isPermissionRequested = false
-    private var isHadEndPosition = false;
+    private var isHadEndPosition = false
 
     // 是否首次定位
     var isFirstLoc: Boolean = true
 
     private val bdStart = BitmapDescriptorFactory.fromResource(R.drawable.icon_start)
     private val bdEnd = BitmapDescriptorFactory.fromResource(R.drawable.icon_end)
+
+    private var mSearch: RoutePlanSearch? = null // 搜索模块，也可去掉地图模块独立使用
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,11 +139,13 @@ class MainActivity : AppCompatActivity() {
             override fun onMapClick(p0: LatLng?) {
                 endPt = p0
                 mEndMarker?.remove()
-                val ooB = MarkerOptions().position(endPt).icon(bdEnd).zIndex(5)
+                val ooB = MarkerOptions().position(endPt).icon(bdEnd).zIndex(2)
                 mEndMarker = mBaiduMap!!.addOverlay(ooB) as Marker
                 mEndMarker!!.isDraggable = true
                 initParam()/* 初始化起终点Marker */
                 isHadEndPosition = true
+
+                searchTarget()
             }
 
             override fun onMapPoiClick(p0: MapPoi?) {
@@ -157,10 +172,25 @@ class MainActivity : AppCompatActivity() {
                 walkEndNode.location = endPt
                 mWalkParam =
                     WalkNaviLaunchParam().startNodeInfo(walkStartNode).endNodeInfo(walkEndNode)
+                if (isHadEndPosition){
+                    searchTarget()
+                }
             }
 
             override fun onMarkerDragStart(marker: Marker) {}
         })
+    }
+
+    private fun searchTarget() {
+        val stNode = PlanNode.withLocation(startPt)
+        val enNode = PlanNode.withLocation(endPt)
+        mSearch?.bikingSearch(
+            BikingRoutePlanOption()
+                .from(stNode)
+                .to(enNode) // ridingType  0 普通骑行，1 电动车骑行
+                // 默认普通骑行
+                .ridingType(1)
+        )
     }
 
 
@@ -243,9 +273,9 @@ class MainActivity : AppCompatActivity() {
      * 初始化导航起终点Marker
      */
     private fun initStartPt() {
-        val ooA = MarkerOptions().position(startPt).icon(bdStart).zIndex(9).draggable(true)
+        val ooA = MarkerOptions().position(startPt).icon(bdStart).zIndex(2).draggable(true)
         mStartMarker = mBaiduMap!!.addOverlay(ooA) as Marker
-        mStartMarker!!.isDraggable = true
+        mStartMarker!!.isDraggable = false
     }
 
     /**
@@ -396,6 +426,47 @@ class MainActivity : AppCompatActivity() {
         mMapView = findViewById<View>(R.id.mapview) as MapView
         initMapStatus()
         initButton()
+        initSearch()
+    }
+
+    private fun initSearch() {
+        // 初始化搜索模块，注册事件监听
+        mSearch = RoutePlanSearch.newInstance()
+        mSearch?.setOnGetRoutePlanResultListener(listener)
+    }
+
+    private var listener: OnGetRoutePlanResultListener = object : OnGetRoutePlanResultListener {
+        var overlay: BikingRouteOverlay? = null
+
+        override fun onGetWalkingRouteResult(p0: WalkingRouteResult?) {
+        }
+
+        override fun onGetTransitRouteResult(p0: TransitRouteResult?) {
+        }
+
+        override fun onGetMassTransitRouteResult(p0: MassTransitRouteResult?) {
+        }
+
+        override fun onGetDrivingRouteResult(p0: DrivingRouteResult?) {
+        }
+
+        override fun onGetIndoorRouteResult(p0: IndoorRouteResult?) {
+        }
+
+        override fun onGetBikingRouteResult(bikingRouteResult: BikingRouteResult) {
+            //创建BikingRouteOverlay实例
+            if (overlay == null){
+                overlay = BikingRouteOverlay(mBaiduMap)
+            }
+            if (bikingRouteResult.routeLines.size > 0) {
+                overlay!!.removeFromMap()
+                //获取路径规划数据,(以返回的第一条路线为例）
+                //为BikingRouteOverlay实例设置数据
+                overlay!!.setData(bikingRouteResult.routeLines[0])
+                //在地图上绘制BikingRouteOverlay
+                overlay!!.addToMap()
+            }
+        }
     }
 
     override fun onPause() {
@@ -418,5 +489,7 @@ class MainActivity : AppCompatActivity() {
         mLocClient?.stop()
         // 关闭定位图层
         mBaiduMap!!.isMyLocationEnabled = false
+
+        mSearch?.destroy()
     }
 }
