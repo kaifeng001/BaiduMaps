@@ -70,9 +70,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_guide_main)
         requestPermission()
-        mMapView = findViewById<View>(R.id.mapview) as MapView
-        initMapStatus()
-        initButton()
     }
 
     private fun initParam() {/*构造导航起终点参数对象*/
@@ -390,6 +387,15 @@ class MainActivity : AppCompatActivity() {
                 requestPermissions(permissionsList.toTypedArray(), 0)
             }
         }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        mMapView = findViewById<View>(R.id.mapview) as MapView
+        initMapStatus()
+        initButton()
     }
 
     override fun onPause() {
