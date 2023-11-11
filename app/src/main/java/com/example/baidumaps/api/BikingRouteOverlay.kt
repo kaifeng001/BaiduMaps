@@ -60,35 +60,35 @@ class BikingRouteOverlay(baiduMap: BaiduMap?) : OverlayManager(baiduMap) {
                     )
                 }
 
-                // 最后路段绘制出口点
-                if (mRouteLine!!.allStep.indexOf(step) == mRouteLine!!
-                        .allStep.size - 1 && step.exit != null
-                ) {
-                    overlayList.add(
-                        MarkerOptions()
-                            .position(step.exit.location)
-                            .anchor(0.5f, 0.5f)
-                            .zIndex(10)
-                            .icon(
-                                BitmapDescriptorFactory
-                                    .fromAssetWithDpi("Icon_line_node.png")
-                            )
-                    )
-                }
+//                // 最后路段绘制出口点
+//                if (mRouteLine!!.allStep.indexOf(step) == mRouteLine!!
+//                        .allStep.size - 1 && step.exit != null
+//                ) {
+//                    overlayList.add(
+//                        MarkerOptions()
+//                            .position(step.exit.location)
+//                            .anchor(0.5f, 0.5f)
+//                            .zIndex(10)
+//                            .icon(
+//                                BitmapDescriptorFactory
+//                                    .fromAssetWithDpi("Icon_line_node.png")
+//                            )
+//                    )
+//                }
             }
         }
-        // starting
-        if (mRouteLine!!.starting != null) {
-            overlayList.add(
-                MarkerOptions()
-                    .position(mRouteLine!!.starting.location)
-                    .icon(
-                        if (startMarker != null) startMarker else BitmapDescriptorFactory
-                            .fromAssetWithDpi("Icon_line_node.png")
-                    ).zIndex(10)
-            )
-        }
-        // terminal
+//        // starting
+//        if (mRouteLine!!.starting != null) {
+//            overlayList.add(
+//                MarkerOptions()
+//                    .position(mRouteLine!!.starting.location)
+//                    .icon(
+//                        if (startMarker != null) startMarker else BitmapDescriptorFactory
+//                            .fromAssetWithDpi("Icon_line_node.png")
+//                    ).zIndex(10)
+//            )
+//        }
+//         terminal
         if (mRouteLine!!.terminal != null) {
             overlayList
                 .add(
