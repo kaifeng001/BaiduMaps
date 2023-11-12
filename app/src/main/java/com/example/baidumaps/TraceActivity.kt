@@ -1,14 +1,14 @@
 package com.example.baidumaps
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.baidu.mapapi.map.BaiduMap
 import com.baidu.mapapi.map.BitmapDescriptorFactory
 import com.baidu.mapapi.map.MapStatusUpdateFactory
 import com.baidu.mapapi.map.MapView
+import com.baidu.mapapi.map.Marker
+import com.baidu.mapapi.map.MarkerOptions
 import com.baidu.mapapi.map.PolylineOptions
 import com.baidu.mapapi.model.LatLng
 import com.baidu.trace.api.track.HistoryTrackRequest
@@ -27,9 +27,11 @@ class TraceActivity : AppCompatActivity() {
     private var mBaiduMap: BaiduMap? = null
     private lateinit var distanceView: TextView
     private lateinit var timeView: TextView
-
-    private val mGreenTexture = BitmapDescriptorFactory.fromAsset("Icon_road_green_arrow.png")
+    private var mGreenTexture = BitmapDescriptorFactory.fromAsset("Icon_road_blue_arrow.png")
     lateinit var myApplication: MyApplication
+    private val bdStart = BitmapDescriptorFactory.fromResource(R.drawable.icon_start)
+    private val bdEnd = BitmapDescriptorFactory.fromResource(R.drawable.icon_end)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trace_main)
@@ -82,6 +84,9 @@ class TraceActivity : AppCompatActivity() {
                 val points = response.getTrackPoints()
                 distanceView.text = "骑行距离：${response.distance.toInt()}米"
                 timeView.text = "骑行用时：$minute 分钟"
+
+                addStartOrEndMarket(response)
+
                 points?.apply {
                     if (size <= 2) {
                         return
@@ -101,6 +106,33 @@ class TraceActivity : AppCompatActivity() {
                         PolylineOptions().points(trackPoints).width(20).customTexture(mGreenTexture)
                             .dottedLine(true)
                     mBaiduMap!!.addOverlay(polylineOptions)
+                }
+            }
+
+            private fun addStartOrEndMarket(response: HistoryTrackResponse) {
+                val startPoint = response.startPoint
+                var startLatLng: LatLng? = null
+                val endPoint = response.endPoint
+                var endLatLng: LatLng? = null
+
+                if (!CommonUtil.isZeroPoint(
+                        startPoint.location.getLatitude(), startPoint.location.getLongitude()
+                    )
+                ) {
+                    startLatLng = MapUtil.convertTrace2Map(startPoint.location)
+                }
+                startLatLng?.apply {
+                    mBaiduMap!!.addOverlay(MarkerOptions().position(this).icon(bdStart).zIndex(2).draggable(false)) as Marker
+                }
+
+                if (!CommonUtil.isZeroPoint(
+                        endPoint.location.getLatitude(), endPoint.location.getLongitude()
+                    )
+                ) {
+                    endLatLng = MapUtil.convertTrace2Map(endPoint.location)
+                }
+                endLatLng?.apply {
+                    mBaiduMap!!.addOverlay(MarkerOptions().position(this).icon(bdEnd).zIndex(2).draggable(false)) as Marker
                 }
             }
         }

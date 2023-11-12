@@ -185,9 +185,7 @@ class MainActivity : AppCompatActivity() {
         val stNode = PlanNode.withLocation(startPt)
         val enNode = PlanNode.withLocation(endPt)
         mSearch?.bikingSearch(
-            BikingRoutePlanOption()
-                .from(stNode)
-                .to(enNode) // ridingType  0 普通骑行，1 电动车骑行
+            BikingRoutePlanOption().from(stNode).to(enNode) // ridingType  0 普通骑行，1 电动车骑行
                 // 默认普通骑行
                 .ridingType(1)
         )
@@ -274,9 +272,13 @@ class MainActivity : AppCompatActivity() {
      * 初始化导航起终点Marker
      */
     private fun initStartPt() {
-        val ooA = MarkerOptions().position(startPt).icon(bdStart).zIndex(2).draggable(true)
-        mStartMarker = mBaiduMap!!.addOverlay(ooA) as Marker
-        mStartMarker!!.isDraggable = false
+        if (mStartMarker == null) {
+            val ooA = MarkerOptions().position(startPt).icon(bdStart).zIndex(2).draggable(true)
+            mStartMarker = mBaiduMap!!.addOverlay(ooA) as Marker
+            mStartMarker!!.isDraggable = false
+        } else {
+            mStartMarker!!.position = startPt
+        }
     }
 
     /**

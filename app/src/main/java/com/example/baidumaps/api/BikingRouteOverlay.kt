@@ -3,14 +3,10 @@
  */
 package com.example.baidumaps.api
 
-import android.graphics.Color
-import android.os.Bundle
 import android.util.Log
 import com.baidu.mapapi.map.BaiduMap
-import com.baidu.mapapi.map.BitmapDescriptor
 import com.baidu.mapapi.map.BitmapDescriptorFactory
 import com.baidu.mapapi.map.Marker
-import com.baidu.mapapi.map.MarkerOptions
 import com.baidu.mapapi.map.OverlayOptions
 import com.baidu.mapapi.map.Polyline
 import com.baidu.mapapi.map.PolylineOptions
@@ -22,6 +18,8 @@ import com.example.baidumaps.overlay.OverlayManager
  * 用于显示骑行路线的Overlay
  */
 class BikingRouteOverlay(baiduMap: BaiduMap?) : OverlayManager(baiduMap) {
+    private var mGreenTexture = BitmapDescriptorFactory.fromAsset("Icon_road_blue_arrow.png")
+
     private var mRouteLine: BikingRouteLine? = null
 
     /**
@@ -39,69 +37,6 @@ class BikingRouteOverlay(baiduMap: BaiduMap?) : OverlayManager(baiduMap) {
             return null
         }
         val overlayList: MutableList<OverlayOptions> = ArrayList()
-        if (mRouteLine!!.allStep != null
-            && mRouteLine!!.allStep.size > 0
-        ) {
-            for (step in mRouteLine!!.allStep) {
-                val b = Bundle()
-                b.putInt("index", mRouteLine!!.allStep.indexOf(step))
-                if (step.entrance != null) {
-                    overlayList.add(
-                        MarkerOptions()
-                            .position(step.entrance.location)
-                            .rotate((360 - step.direction).toFloat())
-                            .zIndex(10)
-                            .anchor(0.5f, 0.5f)
-                            .extraInfo(b)
-                            .icon(
-                                BitmapDescriptorFactory
-                                    .fromAssetWithDpi("Icon_line_node.png")
-                            )
-                    )
-                }
-
-//                // 最后路段绘制出口点
-//                if (mRouteLine!!.allStep.indexOf(step) == mRouteLine!!
-//                        .allStep.size - 1 && step.exit != null
-//                ) {
-//                    overlayList.add(
-//                        MarkerOptions()
-//                            .position(step.exit.location)
-//                            .anchor(0.5f, 0.5f)
-//                            .zIndex(10)
-//                            .icon(
-//                                BitmapDescriptorFactory
-//                                    .fromAssetWithDpi("Icon_line_node.png")
-//                            )
-//                    )
-//                }
-            }
-        }
-//        // starting
-//        if (mRouteLine!!.starting != null) {
-//            overlayList.add(
-//                MarkerOptions()
-//                    .position(mRouteLine!!.starting.location)
-//                    .icon(
-//                        if (startMarker != null) startMarker else BitmapDescriptorFactory
-//                            .fromAssetWithDpi("Icon_line_node.png")
-//                    ).zIndex(10)
-//            )
-//        }
-//         terminal
-        if (mRouteLine!!.terminal != null) {
-            overlayList
-                .add(
-                    MarkerOptions()
-                        .position(mRouteLine!!.terminal.location)
-                        .icon(
-                            if (terminalMarker != null) terminalMarker else BitmapDescriptorFactory
-                                .fromAssetWithDpi("Icon_line_node.png")
-                        )
-                        .zIndex(10)
-                )
-        }
-
         // poly line list
         if (mRouteLine!!.allStep != null
             && mRouteLine!!.allStep.size > 0
@@ -113,9 +48,15 @@ class BikingRouteOverlay(baiduMap: BaiduMap?) : OverlayManager(baiduMap) {
                     val points: MutableList<LatLng> = ArrayList()
                     if (lastStepLastPoint != null) {
                         points.add(lastStepLastPoint)
+                        Log.d(
+                            "fengkai",
+                            "getOverlayOptions:${lastStepLastPoint.latitude}  ${lastStepLastPoint.longitude}"
+                        )
                     }
                     points.addAll(watPoints)
-
+                    if (mGreenTexture == null){
+                        mGreenTexture = BitmapDescriptorFactory.fromAsset("Icon_road_green_arrow.png")
+                    }
                     overlayList.add(
                         PolylineOptions().points(points).width(10)
                             .customTexture(mGreenTexture).zIndex(0)
@@ -126,23 +67,6 @@ class BikingRouteOverlay(baiduMap: BaiduMap?) : OverlayManager(baiduMap) {
         }
         return overlayList
     }
-    private val mGreenTexture = BitmapDescriptorFactory.fromAsset("Icon_road_green_arrow.png")
-    val startMarker: BitmapDescriptor?
-        /**
-         * 覆写此方法以改变默认起点图标
-         *
-         * @return 起点图标
-         */
-        get() = null
-    val lineColor: Int
-        get() = 0
-    val terminalMarker: BitmapDescriptor?
-        /**
-         * 覆写此方法以改变默认终点图标
-         *
-         * @return 终点图标
-         */
-        get() = null
 
     /**
      * 处理点击事件

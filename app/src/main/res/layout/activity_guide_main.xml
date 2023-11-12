@@ -32,7 +32,8 @@
         android:layout_alignParentRight="true"
         android:layout_marginTop="10dp"
         android:layout_marginRight="10dp"
-        android:text="步行导航" />
+        android:text="步行导航"
+        android:visibility="gone" />
 
     <Button
         android:id="@+id/btn_walknavi_ar"
@@ -42,6 +43,7 @@
         android:layout_alignParentRight="true"
         android:layout_marginTop="100dp"
         android:layout_marginRight="20dp"
-        android:text="AR步行导航" />
+        android:text="AR步行导航"
+        android:visibility="gone" />
 
 </RelativeLayout>

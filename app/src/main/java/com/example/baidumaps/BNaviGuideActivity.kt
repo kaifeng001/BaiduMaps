@@ -84,6 +84,8 @@ class BNaviGuideActivity : AppCompatActivity() {
             override fun onGetRouteDetailInfo(bikeRouteDetailInfo: BikeRouteDetailInfo) {
             }
         })
+        // 开启服务
+        myApplication.mTraceClient?.startTrace(myApplication.mTrace, myApplication.mTraceListener)
         // 开启采集
         myApplication.mTraceClient?.startGather(myApplication.mTraceListener);
     }

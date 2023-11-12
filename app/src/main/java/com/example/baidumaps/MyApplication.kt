@@ -85,7 +85,6 @@ class MyApplication : Application() {
 
             // 设置定位和打包周期
             mTraceClient!!.setInterval(gatherInterval, packInterval)
-            mTraceClient!!.startTrace(mTrace, mTraceListener)
         } catch (e: Exception) {
         }
     }
