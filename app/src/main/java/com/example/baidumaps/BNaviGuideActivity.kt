@@ -1,5 +1,6 @@
 package com.example.baidumaps
 
+import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
@@ -11,7 +12,6 @@ import com.baidu.mapapi.bikenavi.adapter.IBTTSPlayer
 import com.baidu.mapapi.bikenavi.model.BikeNaviDisplayOption
 import com.baidu.mapapi.bikenavi.model.BikeRouteDetailInfo
 import com.baidu.mapapi.bikenavi.model.IBRouteIconInfo
-import com.baidu.mapapi.bikenavi.params.BikeNaviLaunchParam
 import com.baidu.mapapi.walknavi.model.RouteGuideKind
 
 
@@ -20,23 +20,28 @@ class BNaviGuideActivity : AppCompatActivity() {
 
     private var mNaviHelper: BikeNavigateHelper? = null
 
-    var param: BikeNaviLaunchParam? = null
+    private lateinit var myApplication: MyApplication
 
     override fun onDestroy() {
         super.onDestroy()
-        mNaviHelper!!.quit()
+        // 停止采集
+        myApplication.mTraceClient?.stopGather(myApplication.mTraceListener);
+        mNaviHelper?.quit()
+        val intent = Intent()
+        intent.setClass(this, TraceActivity::class.java)
+        startActivity(intent)
     }
 
     override fun onResume() {
         super.onResume()
-        mNaviHelper!!.resume()
+        mNaviHelper?.resume()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        myApplication = application as MyApplication
         mNaviHelper = BikeNavigateHelper.getInstance()
-        val bikeNaviDisplayOption = BikeNaviDisplayOption()
-            .showSpeedLayout(true) // 是否展示速度切换布局
+        val bikeNaviDisplayOption = BikeNaviDisplayOption().showSpeedLayout(true) // 是否展示速度切换布局
             .showTopGuideLayout(true) // 是否展示顶部引导布局
             .showLocationImage(true) // 是否展示视角切换资源
         mNaviHelper?.setBikeNaviDisplayOption(bikeNaviDisplayOption)
@@ -53,8 +58,7 @@ class BNaviGuideActivity : AppCompatActivity() {
                 if (routeIconInfo != null) {
                     Log.d(
                         "GuideIconObjectUpdate",
-                        "onRoadGuideTextUpdate   Drawable=: " + routeIconInfo.iconDrawable
-                                + " Name=: " + routeIconInfo.iconName
+                        "onRoadGuideTextUpdate   Drawable=: " + routeIconInfo.iconDrawable + " Name=: " + routeIconInfo.iconName
                     )
                 }
             }
@@ -62,8 +66,7 @@ class BNaviGuideActivity : AppCompatActivity() {
             override fun onRouteGuideIconUpdate(icon: Drawable) {}
             override fun onRouteGuideKind(routeGuideKind: RouteGuideKind) {}
             override fun onRoadGuideTextUpdate(
-                charSequence: CharSequence,
-                charSequence1: CharSequence
+                charSequence: CharSequence, charSequence1: CharSequence
             ) {
             }
 
@@ -73,9 +76,14 @@ class BNaviGuideActivity : AppCompatActivity() {
             override fun onRouteFarAway(charSequence: CharSequence, drawable: Drawable) {}
             override fun onRoutePlanYawing(charSequence: CharSequence, drawable: Drawable) {}
             override fun onReRouteComplete() {}
-            override fun onArriveDest() {}
+            override fun onArriveDest() {
+            }
+
             override fun onVibrate() {}
-            override fun onGetRouteDetailInfo(bikeRouteDetailInfo: BikeRouteDetailInfo) {}
+            override fun onGetRouteDetailInfo(bikeRouteDetailInfo: BikeRouteDetailInfo) {
+            }
         })
+        // 开启采集
+        myApplication.mTraceClient?.startGather(myApplication.mTraceListener);
     }
 }

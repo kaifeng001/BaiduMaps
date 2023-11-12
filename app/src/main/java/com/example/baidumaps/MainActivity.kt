@@ -172,7 +172,7 @@ class MainActivity : AppCompatActivity() {
                 walkEndNode.location = endPt
                 mWalkParam =
                     WalkNaviLaunchParam().startNodeInfo(walkStartNode).endNodeInfo(walkEndNode)
-                if (isHadEndPosition){
+                if (isHadEndPosition) {
                     searchTarget()
                 }
             }
@@ -237,7 +237,7 @@ class MainActivity : AppCompatActivity() {
             val locData = MyLocationData.Builder().accuracy(location.radius) // 设置定位数据的精度信息，单位：米
                 .direction(location.direction) // 此处设置开发者获取到的方向信息，顺时针0-360
                 .latitude(location.latitude).longitude(location.longitude).build()
-            // 设置定位数据, 只有先允许定位图层后设置数据才会生效
+            Log.d("fengkai", "locData:$location.latitude")
             // 设置定位数据, 只有先允许定位图层后设置数据才会生效
             mainActivity?.mBaiduMap?.setMyLocationData(locData)
             if (mainActivity?.isFirstLoc == true) {
@@ -252,6 +252,8 @@ class MainActivity : AppCompatActivity() {
                 )
                 mainActivity?.addStartMarker(latLng)
             }
+            val myApplication: MyApplication = mainActivity?.application as MyApplication
+            myApplication.mCurrentLocation = LatLng(location.latitude, location.longitude)
         }
     }
 
@@ -455,7 +457,7 @@ class MainActivity : AppCompatActivity() {
 
         override fun onGetBikingRouteResult(bikingRouteResult: BikingRouteResult) {
             //创建BikingRouteOverlay实例
-            if (overlay == null){
+            if (overlay == null) {
                 overlay = BikingRouteOverlay(mBaiduMap)
             }
             if (bikingRouteResult.routeLines.size > 0) {
@@ -471,24 +473,24 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        mMapView!!.onPause()
+        mMapView?.onPause()
     }
 
     override fun onResume() {
         super.onResume()
-        mMapView!!.onResume()
+        mMapView?.onResume()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mMapView!!.onDestroy()
+        mMapView?.onDestroy()
         bdStart.recycle()
         bdEnd.recycle()
 
         // 退出时销毁定位
         mLocClient?.stop()
         // 关闭定位图层
-        mBaiduMap!!.isMyLocationEnabled = false
+        mBaiduMap?.isMyLocationEnabled = false
 
         mSearch?.destroy()
     }
