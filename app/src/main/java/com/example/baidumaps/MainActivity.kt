@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity() {
     private var isHadEndPosition = false
 
     // 是否首次定位
-    var isFirstLoc: Boolean = true
+    var shouldRefreshStartLocation: Boolean = true
 
     private val bdStart = BitmapDescriptorFactory.fromResource(R.drawable.icon_start)
     private val bdEnd = BitmapDescriptorFactory.fromResource(R.drawable.icon_end)
@@ -240,8 +240,8 @@ class MainActivity : AppCompatActivity() {
             Log.d("fengkai", "locData:$location.latitude")
             // 设置定位数据, 只有先允许定位图层后设置数据才会生效
             mainActivity?.mBaiduMap?.setMyLocationData(locData)
-            if (mainActivity?.isFirstLoc == true) {
-                mainActivity?.isFirstLoc = false
+            if (mainActivity?.shouldRefreshStartLocation == true) {
+                mainActivity?.shouldRefreshStartLocation = false
                 val latLng = LatLng(location.latitude, location.longitude)
                 val builder = MapStatus.Builder()
                 builder.target(latLng).zoom(15.0f)
@@ -267,7 +267,6 @@ class MainActivity : AppCompatActivity() {
             return
         }
         startPt = latLng
-        endPt = latLng
         initStartPt()
     }
 
@@ -461,7 +460,6 @@ class MainActivity : AppCompatActivity() {
                 overlay = BikingRouteOverlay(mBaiduMap)
             }
             if (bikingRouteResult.routeLines.size > 0) {
-                overlay!!.removeFromMap()
                 //获取路径规划数据,(以返回的第一条路线为例）
                 //为BikingRouteOverlay实例设置数据
                 overlay!!.setData(bikingRouteResult.routeLines[0])
@@ -479,6 +477,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         mMapView?.onResume()
+        shouldRefreshStartLocation = true
     }
 
     override fun onDestroy() {

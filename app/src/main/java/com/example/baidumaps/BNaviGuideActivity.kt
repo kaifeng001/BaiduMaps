@@ -77,6 +77,7 @@ class BNaviGuideActivity : AppCompatActivity() {
             override fun onRoutePlanYawing(charSequence: CharSequence, drawable: Drawable) {}
             override fun onReRouteComplete() {}
             override fun onArriveDest() {
+                finish()
             }
 
             override fun onVibrate() {}

@@ -115,10 +115,10 @@ class BikingRouteOverlay(baiduMap: BaiduMap?) : OverlayManager(baiduMap) {
                         points.add(lastStepLastPoint)
                     }
                     points.addAll(watPoints)
+
                     overlayList.add(
                         PolylineOptions().points(points).width(10)
-                            .color(if (lineColor != 0) lineColor else Color.argb(178, 0, 78, 255))
-                            .zIndex(0)
+                            .customTexture(mGreenTexture).zIndex(0)
                     )
                     lastStepLastPoint = watPoints[watPoints.size - 1]
                 }
@@ -126,7 +126,7 @@ class BikingRouteOverlay(baiduMap: BaiduMap?) : OverlayManager(baiduMap) {
         }
         return overlayList
     }
-
+    private val mGreenTexture = BitmapDescriptorFactory.fromAsset("Icon_road_green_arrow.png")
     val startMarker: BitmapDescriptor?
         /**
          * 覆写此方法以改变默认起点图标
