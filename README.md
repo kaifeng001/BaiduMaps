@@ -1,2 +1,2 @@
 # BaiduMaps
-集成Baidu地图部分功能
+集成Baidu地图，方便用户骑行
